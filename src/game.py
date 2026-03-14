@@ -1,11 +1,11 @@
 import pygame
 from player import Player
+from rope import Rope
 
 
 class Game:
 
     def __init__(self):
-        # Initialisation de Pygame
         pygame.init()
 
         # Dimensions de la fenêtre
@@ -14,12 +14,14 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("JumpMaster")
 
-        # Horloge pour FPS
         self.clock = pygame.time.Clock()
         self.running = True
 
-        # Création du joueur
+        # Joueur
         self.player = Player(200, 300)
+
+        # Corde
+        self.rope = Rope(self.player)
 
     def run(self):
         while self.running:
@@ -28,21 +30,20 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                # Gestion du saut
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.player.jump()
 
-            # --- Mise à jour du jeu ---
+            # --- Mise à jour ---
             self.player.update()
+            self.rope.update()
 
             # --- Dessin ---
             self.screen.fill((30, 30, 30))  # Fond noir
             self.player.draw(self.screen)
+            self.rope.draw(self.screen)
 
-            # Actualiser l'écran
             pygame.display.flip()
-            self.clock.tick(60)  # Limiter à 60 FPS
+            self.clock.tick(60)
 
-        # Quitter Pygame proprement
         pygame.quit()
