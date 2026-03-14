@@ -2,12 +2,15 @@ import pygame
 from player import Player
 from rope import Rope
 from score_manager import ScoreManager
+import os
 
 class Game:
 
     def __init__(self, width=800, height=400):
         pygame.init()
+        pygame.mixer.init()  # Initialiser le son
 
+        # Fenêtre responsive
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
@@ -16,7 +19,10 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        # Joueur
         self.player = Player(self.width * 0.25, self.height * 0.75)
+
+        # Corde
         self.rope = Rope(self.player)
 
         # Score et erreurs
@@ -26,6 +32,9 @@ class Game:
 
         # Gestion des scores
         self.score_manager = ScoreManager()
+
+        # Sons
+        self.sound_fail = pygame.mixer.Sound(os.path.join("assets", "sounds", "fail.wav"))
 
     def run(self):
         while self.running:
@@ -45,15 +54,16 @@ class Game:
             self.player.update()
             self.rope.update()
 
-            # Collision simple
+            # Collision simple : corde sous le joueur
             rope_bottom_y = self.player.y - self.player.height//2 + self.rope.radius * pygame.math.sin(self.rope.angle)
             if rope_bottom_y > self.player.y and not self.player.on_ground:
                 self.misses += 1
                 self.player.y = self.height * 0.75
                 self.player.vel_y = 0
                 self.player.on_ground = True
+                self.sound_fail.play()
 
-            # Score et difficulté
+            # Score et difficulté progressive
             if self.player.on_ground:
                 self.score += 1
                 if self.score % 10 == 0:
@@ -61,9 +71,18 @@ class Game:
 
             # --- Dessin ---
             self.screen.fill((30, 30, 30))
-            self.player.draw(self.screen)
-            self.rope.draw(self.screen)
 
+            # Joueur
+            self.player.draw(self.screen)
+
+            # Corde animée
+            rope_x = self.player.x + self.rope.radius * pygame.math.cos(self.rope.angle)
+            rope_y = self.player.y - self.player.height//2 + self.rope.radius * pygame.math.sin(self.rope.angle)
+            pygame.draw.line(self.screen, (200, 200, 255),
+                             (self.player.x + self.player.width//2, self.player.y - self.player.height//2),
+                             (rope_x, rope_y), 6)
+
+            # Affichage score et erreurs
             score_text = self.font.render(f"Score : {self.score}", True, (255, 255, 255))
             miss_text = self.font.render(f"Erreurs : {self.misses}/3", True, (255, 100, 100))
             high_score_text = self.font.render(f"Meilleur score : {self.score_manager.get_high_score()}", True, (255, 255, 0))
