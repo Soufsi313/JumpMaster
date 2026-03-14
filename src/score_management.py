@@ -5,11 +5,7 @@ class ScoreManager:
 
     def __init__(self, filepath="data/scores.json"):
         self.filepath = filepath
-
-        # Vérifier que le dossier existe
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
-
-        # Créer le fichier s'il n'existe pas
         if not os.path.exists(self.filepath):
             with open(self.filepath, "w") as f:
                 json.dump([], f)
@@ -20,9 +16,7 @@ class ScoreManager:
                 scores = json.load(f)
         except:
             scores = []
-
         scores.append(score)
-
         with open(self.filepath, "w") as f:
             json.dump(scores, f)
 
