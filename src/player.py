@@ -1,6 +1,5 @@
 import pygame
 
-
 class Player:
 
     def __init__(self, x, y):
@@ -22,19 +21,14 @@ class Player:
             self.on_ground = False
 
     def update(self):
-
         self.vel_y += self.gravity
         self.y += self.vel_y
 
-        if self.y >= 300:
-            self.y = 300
+        if self.y >= 0.75 * pygame.display.get_surface().get_height():
+            self.y = 0.75 * pygame.display.get_surface().get_height()
             self.vel_y = 0
             self.on_ground = True
 
     def draw(self, screen):
-
-        pygame.draw.rect(
-            screen,
-            (0, 200, 0),
-            (self.x, self.y - self.height, self.width, self.height)
-        )
+        pygame.draw.rect(screen, (0, 200, 0),
+                         (self.x, self.y - self.height, self.width, self.height))
